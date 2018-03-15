@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/light_grey">
+
+    <include layout="@layout/toolbar_common" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/toolbar_height">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/default_margin">
+
+            <com.wuxiaosu.widget.SettingLabelView
+                android:id="@+id/slv_hide_icon"
+                style="@style/SettingLayout"
+                app:label_text="隐藏图标"
+                app:preferences_key="@string/pre_key_hide_icon"
+                app:subheading_text="隐藏后可以从 Xposed 模块中打开应用" />
+
+            <com.wuxiaosu.widget.SettingLabelView
+                android:id="@+id/slv_location"
+                style="@style/SettingLayout"
+                app:contact_view="@id/ll_location"
+                app:label_text="模拟定位"
+                app:preferences_key="@string/pre_key_fake_location" />
+
+            <RelativeLayout
+                android:id="@+id/ll_location"
+                style="@style/SettingLayout"
+                android:layout_marginTop="0dp"
+                android:paddingLeft="@dimen/default_margin"
+                android:paddingRight="@dimen/default_margin">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_toLeftOf="@id/iv_location"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/et_latitude"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="@dimen/little_margin"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:hint="纬度"
+                        android:inputType="numberDecimal" />
+
+                    <EditText
+                        android:id="@+id/et_longitude"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/little_margin"
+                        android:layout_marginRight="@dimen/little_margin"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:hint="经度"
+                        android:inputType="numberDecimal" />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/iv_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="@dimen/mini_margin"
+                    android:layout_marginRight="@dimen/mini_margin"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:padding="@dimen/mini_margin"
+                    android:src="@drawable/ic_current_location"
+                    android:tint="@color/accent" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_location_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.wuxiaosu.widget.SettingLabelView
+                    style="@style/SettingLayout"
+                    app:contact_view="@id/rl_location_start_time"
+                    app:label_text="模拟定位启用时间"
+                    app:preferences_key="@string/pre_key_fake_location_time"
+                    app:subheading_text="防止早上打开应用自动极速打卡" />
+
+                <RelativeLayout
+                    android:id="@+id/rl_location_start_time"
+                    style="@style/SettingLayout"
+                    android:layout_marginTop="0dp"
+                    android:paddingLeft="@dimen/default_margin"
+                    android:paddingRight="@dimen/default_margin">
+
+                    <EditText
+                        android:id="@+id/et_location_start_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="@dimen/little_margin"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:hint="启用时间,如：8:40"
+                        android:inputType="time"
+                        android:maxLength="5"
+                        android:singleLine="true" />
+
+                </RelativeLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>
+

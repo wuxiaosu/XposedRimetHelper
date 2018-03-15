@@ -1,0 +1,66 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.wuxiaosu.rimethelper"
+        minSdkVersion 21
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file(RIMETHELPER_STORE_FILE)
+            storePassword RIMETHELPER_STORE_PASSWORD
+            keyAlias RIMETHELPER_KEY_ALIAS
+            keyPassword RIMETHELPER_KEY_PASSWORD
+        }
+    }
+
+    buildTypes {
+
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+
+            manifestPlaceholders = [
+                    AMapKey: "26b0d2cd5c99befe30cf73c6d93fe8ea"
+            ]
+            applicationVariants.all { variant ->
+                variant.outputs.all { output ->
+                    def oldFile = output.outputFile
+                    def newName = oldFile.name
+                    if (variant.buildType.name == 'release') {
+                        newName = oldFile.name.replace(".", "-v" + variant.versionName + '.')
+                    }
+                    outputFileName = newName
+                }
+            }
+        }
+
+        debug {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            manifestPlaceholders = [
+                    AMapKey: "26b0d2cd5c99befe30cf73c6d93fe8ea"
+            ]
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    //noinspection GradleCompatible
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:design:26.1.0'
+    implementation 'com.android.support:support-v4:26.1.0'
+    compile 'com.jaeger.statusbarutil:library:1.4.0'
+    provided 'de.robv.android.xposed:api:82'
+    implementation 'com.github.wuxiaosu:SettingLabelView:1.0@aar'
+    compile project(':amaplitelib')
+    compile 'com.github.arimorty:floatingsearchview:2.1.1'
+}

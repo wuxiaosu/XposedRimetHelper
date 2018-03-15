@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">钉钉助手</string>
+    <string name="app_description">钉钉辅助</string>
+
+    <string name="pre_key_hide_icon">hide_icon</string>
+    <string name="pre_key_fake_location">fake_location</string>
+    <string name="pre_key_fake_location_time">fake_location_time</string>
+    <string name="pre_key_location_start_time">location_start_time</string>
+    <string name="pre_key_latitude">latitude</string>
+    <string name="pre_key_longitude">longitude</string>
+
+    <string name="action_search">搜索</string>
+    <string name="action_about">关于</string>
+</resources>
