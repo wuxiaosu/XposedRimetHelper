@@ -42,7 +42,7 @@ public class MainActivity extends BaseActivity {
     private EditText mEtLocationStartTime;
 
     private final String[] supportVersions =
-            new String[]{"4.2.0", "4.2.1", "4.2.6", "4.2.8", "4.3.0", "4.3.1"};
+            new String[]{"4.2.0", "4.2.1", "4.2.6", "4.2.8", "4.3.0", "4.3.1", "4.3.2"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
