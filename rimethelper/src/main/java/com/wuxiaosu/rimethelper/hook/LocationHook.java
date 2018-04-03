@@ -58,9 +58,13 @@ public class LocationHook {
                 webClazzName = "gxt";
                 otherClazzName = "brm";
                 break;
-            default:
             case "4.3.2":
                 webClazzName = "gzd";
+                otherClazzName = "bsg";
+                break;
+            default:
+            case "4.3.3":
+                webClazzName = "gzm";
                 otherClazzName = "bsg";
                 break;
         }

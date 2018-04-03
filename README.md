@@ -4,8 +4,10 @@ Xposed 钉钉辅助模块，暂时实现模拟位置。
 ## 效果图
 ![00.png](https://raw.githubusercontent.com/wuxiaosu/XposedRimetHelper/master/screenshots/00.png)
 ## 下载
-- release from [github](https://github.com/wuxiaosu/XposedRimetHelper/releases) [v1.01](https://github.com/wuxiaosu/XposedRimetHelper/releases/tag/v1.01) 
+- release from [github](https://github.com/wuxiaosu/XposedRimetHelper/releases) 
 - release from [酷安](https://www.coolapk.com/apk/180336) 
+## v1.02   
+更新支持 4.3.3  
 ## v1.01   
 更新支持 4.3.2；  
 修复 7.0+ 直接闪退的问题；
