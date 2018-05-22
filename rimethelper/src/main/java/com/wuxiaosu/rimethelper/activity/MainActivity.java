@@ -42,7 +42,7 @@ public class MainActivity extends BaseActivity {
     private EditText mEtLocationStartTime;
 
     private final String[] supportVersions =
-            new String[]{"4.2.0", "4.2.1", "4.2.6", "4.2.8", "4.3.0", "4.3.1", "4.3.2", "4.3.3", "4.3.5"};
+            new String[]{"4.2.0", "4.2.1", "4.2.6", "4.2.8", "4.3.0", "4.3.1", "4.3.2", "4.3.3", "4.3.5", "4.3.7"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,7 +171,7 @@ public class MainActivity extends BaseActivity {
         });
         mTvVersionName.setText(getString(R.string.app_name) + " v" + BuildConfig.VERSION_NAME);
         mTvInfo.setText(getString(R.string.app_description)
-                + ",当前版本已支持\n钉钉："
+                + ",理论上支持钉钉4.2.0以上所有版本，当前版本实测支持以下版本\n钉钉："
                 + Arrays.toString(supportVersions)
                 + "\n更多详情：");
         AlertDialog alertDialog = new AlertDialog.Builder(this)

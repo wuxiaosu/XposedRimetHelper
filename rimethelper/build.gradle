@@ -6,8 +6,8 @@ android {
         applicationId "com.wuxiaosu.rimethelper"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 4
-        versionName "1.03"
+        versionCode 5
+        versionName "1.04"
     }
 
     signingConfigs {
@@ -42,7 +42,7 @@ android {
         }
 
         debug {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
             manifestPlaceholders = [
@@ -58,9 +58,9 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support:design:26.1.0'
     implementation 'com.android.support:support-v4:26.1.0'
-    compile 'com.jaeger.statusbarutil:library:1.4.0'
-    provided 'de.robv.android.xposed:api:82'
+    implementation 'com.jaeger.statusbarutil:library:1.4.0'
+    compileOnly 'de.robv.android.xposed:api:82'
     implementation 'com.github.wuxiaosu:SettingLabelView:1.0@aar'
-    compile project(':amaplitelib')
-    compile 'com.github.arimorty:floatingsearchview:2.1.1'
+    implementation project(':amaplitelib')
+    implementation 'com.github.arimorty:floatingsearchview:2.1.1'
 }

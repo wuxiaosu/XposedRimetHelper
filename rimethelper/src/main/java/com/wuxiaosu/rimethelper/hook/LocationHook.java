@@ -3,6 +3,8 @@ package com.wuxiaosu.rimethelper.hook;
 import com.wuxiaosu.rimethelper.BuildConfig;
 import com.wuxiaosu.widget.SettingLabelView;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -27,57 +29,51 @@ public class LocationHook {
     private String latitude;
     private String longitude;
 
-    private String webClazzName;
-    private String otherClazzName;
 
     public LocationHook(String versionName) {
         xsp = new XSharedPreferences(BuildConfig.APPLICATION_ID, SettingLabelView.DEFAULT_PREFERENCES_NAME);
         xsp.makeWorldReadable();
-        switch (versionName) {
-            case "4.2.0":
-                webClazzName = "fym";
-                otherClazzName = "bhl";
-                break;
-            case "4.2.1":
-                webClazzName = "fyn";
-                otherClazzName = "bhl";
-                break;
-            case "4.2.6":
-                webClazzName = "gif";
-                otherClazzName = "bjp";
-                break;
-            case "4.2.8":
-                webClazzName = "gnv";
-                otherClazzName = "blt";
-                break;
-            case "4.3.0":
-                webClazzName = "gxq";
-                otherClazzName = "brm";
-                break;
-            case "4.3.1":
-                webClazzName = "gxt";
-                otherClazzName = "brm";
-                break;
-            case "4.3.2":
-                webClazzName = "gzd";
-                otherClazzName = "bsg";
-                break;
-            case "4.3.3":
-                webClazzName = "gzm";
-                otherClazzName = "bsg";
-                break;
-            default:
-            case "4.3.5":
-                webClazzName = "hgp";
-                otherClazzName = "bty";
-                break;
+    }
+
+    public void hook(final ClassLoader classLoader) {
+        try {
+            final Class aMapLocationClientClazz =
+                    XposedHelpers.findClass("com.amap.api.location.AMapLocationClient", classLoader);
+            XposedBridge.hookAllConstructors(aMapLocationClientClazz, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    Field[] fields = aMapLocationClientClazz.getDeclaredFields();
+                    for (Field field : fields) {
+                        Object object = XposedHelpers.getObjectField(param.thisObject, field.getName());
+                        if (object != null &&
+                                !(object.getClass().getName()).equals("com.alibaba.android.rimet.LauncherApplication")) {
+                            Class locationManagerClazz =
+                                    XposedHelpers.findClass(object.getClass().getName(), classLoader);
+                            hookLocationManager(locationManagerClazz);
+                        }
+                    }
+                    super.afterHookedMethod(param);
+                }
+            });
+        } catch (Error | Exception e) {
+            XposedBridge.log(e);
         }
     }
 
-    public void hook(ClassLoader classLoader) {
+    private void reload() {
+        xsp.reload();
+        fakeLocation = xsp.getBoolean("fake_location", false);
+        fakeLocationTime = xsp.getBoolean("fake_location_time", false);
+        startTime = xsp.getString("location_start_time", "8:40");
+        latitude = xsp.getString("latitude", "39.908692");
+        longitude = xsp.getString("longitude", "116.397477");
+    }
+
+
+    private void hookLocationManager(Class locationManagerClazz) {
         try {
-            Class webClazz = XposedHelpers.findClass(webClazzName, classLoader);
-            XposedBridge.hookAllMethods(webClazz, "setLocationListener", new XC_MethodHook() {
+            //chat location
+            XposedBridge.hookAllMethods(locationManagerClazz, "setLocationListener", new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     Class listenerClazz = param.args[0].getClass();
@@ -91,28 +87,24 @@ public class LocationHook {
                     super.beforeHookedMethod(param);
                 }
             });
-
-            Class otherClazz = XposedHelpers.findClass(otherClazzName, classLoader);
-            XposedBridge.hookAllMethods(otherClazz, "onLocationChanged", new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    param.args[0] = fakeAMapLocationObject(param.args[0]);
-                    super.beforeHookedMethod(param);
+            //web location
+            Method[] methods = locationManagerClazz.getMethods();
+            for (Method method : methods) {
+                Class[] classes = method.getParameterTypes();
+                if (classes.length == 1 && classes[0].getName().equals("com.amap.api.location.AMapLocation")) {
+                    XposedBridge.hookMethod(method, new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            param.args[0] = fakeAMapLocationObject(param.args[0]);
+                            super.beforeHookedMethod(param);
+                        }
+                    });
+                    break;
                 }
-            });
-
-        } catch (Error | Exception e) {
+            }
+        } catch (Throwable e) {
             XposedBridge.log(e);
         }
-    }
-
-    private void reload() {
-        xsp.reload();
-        fakeLocation = xsp.getBoolean("fake_location", false);
-        fakeLocationTime = xsp.getBoolean("fake_location_time", false);
-        startTime = xsp.getString("location_start_time", "8:40");
-        latitude = xsp.getString("latitude", "39.908692");
-        longitude = xsp.getString("longitude", "116.397477");
     }
 
     private Object fakeAMapLocationObject(Object object) {

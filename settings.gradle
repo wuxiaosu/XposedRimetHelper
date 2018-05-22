@@ -1,1 +1,1 @@
-include ':rimethelper', ':amaplitelib'
+include ':rimethelper', ':amaplitelib', ':SettingLabelView'
