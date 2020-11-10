@@ -1,14 +1,16 @@
 package com.wuxiaosu.rimethelper.hook;
 
+import android.annotation.SuppressLint;
+
 import com.wuxiaosu.rimethelper.BuildConfig;
 import com.wuxiaosu.widget.SettingLabelView;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -21,38 +23,38 @@ import de.robv.android.xposed.XposedHelpers;
  */
 
 public class LocationHook {
-    private XSharedPreferences xsp;
 
-    private boolean fakeLocation;
-    private boolean fakeLocationTime;
-    private String startTime;
-    private String latitude;
-    private String longitude;
+    private static XSharedPreferences sXsp;
 
+    private static boolean sFakeLocation;
+    private static boolean sFakeLocationTime;
+    private static String sStartTime;
+    private static String sLatitude;
+    private static String sLongitude;
 
-    public LocationHook(String versionName) {
-        xsp = new XSharedPreferences(BuildConfig.APPLICATION_ID, SettingLabelView.DEFAULT_PREFERENCES_NAME);
-        xsp.makeWorldReadable();
-    }
+    private static final List<String> LISTENER_CLASS = new ArrayList<>();
 
-    public void hook(final ClassLoader classLoader) {
+    public static void hook(final ClassLoader classLoader) {
         try {
-            final Class aMapLocationClientClazz =
+            final Class<?> aMapLocationClientClazz =
                     XposedHelpers.findClass("com.amap.api.location.AMapLocationClient", classLoader);
-            XposedBridge.hookAllConstructors(aMapLocationClientClazz, new XC_MethodHook() {
+            XposedBridge.hookAllMethods(aMapLocationClientClazz, "setLocationListener", new XC_MethodHook() {
                 @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    Field[] fields = aMapLocationClientClazz.getDeclaredFields();
-                    for (Field field : fields) {
-                        Object object = XposedHelpers.getObjectField(param.thisObject, field.getName());
-                        if (object != null &&
-                                !(object.getClass().getName()).equals("com.alibaba.android.rimet.LauncherApplication")) {
-                            Class locationManagerClazz =
-                                    XposedHelpers.findClass(object.getClass().getName(), classLoader);
-                            hookLocationManager(locationManagerClazz);
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    super.beforeHookedMethod(param);
+                    if (param.args.length == 1) {
+                        Class<?> listenerClazz = param.args[0].getClass();
+                        if (!LISTENER_CLASS.contains(listenerClazz.getName())) {
+                            LISTENER_CLASS.add(listenerClazz.getName());
+                            XposedBridge.hookAllMethods(listenerClazz, "onLocationChanged", new XC_MethodHook() {
+                                @Override
+                                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                                    param.args[0] = fakeAMapLocationObject(param.args[0]);
+                                    super.beforeHookedMethod(param);
+                                }
+                            });
                         }
                     }
-                    super.afterHookedMethod(param);
                 }
             });
         } catch (Error | Exception e) {
@@ -60,59 +62,25 @@ public class LocationHook {
         }
     }
 
-    private void reload() {
-        xsp.reload();
-        fakeLocation = xsp.getBoolean("fake_location", false);
-        fakeLocationTime = xsp.getBoolean("fake_location_time", false);
-        startTime = xsp.getString("location_start_time", "8:40");
-        latitude = xsp.getString("latitude", "39.908692");
-        longitude = xsp.getString("longitude", "116.397477");
-    }
-
-
-    private void hookLocationManager(Class locationManagerClazz) {
-        try {
-            //chat location
-            XposedBridge.hookAllMethods(locationManagerClazz, "setLocationListener", new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    Class listenerClazz = param.args[0].getClass();
-                    XposedBridge.hookAllMethods(listenerClazz, "onLocationChanged", new XC_MethodHook() {
-                        @Override
-                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            param.args[0] = fakeAMapLocationObject(param.args[0]);
-                            super.beforeHookedMethod(param);
-                        }
-                    });
-                    super.beforeHookedMethod(param);
-                }
-            });
-            //web location
-            Method[] methods = locationManagerClazz.getMethods();
-            for (Method method : methods) {
-                Class[] classes = method.getParameterTypes();
-                if (classes.length == 1 && classes[0].getName().equals("com.amap.api.location.AMapLocation")) {
-                    XposedBridge.hookMethod(method, new XC_MethodHook() {
-                        @Override
-                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            param.args[0] = fakeAMapLocationObject(param.args[0]);
-                            super.beforeHookedMethod(param);
-                        }
-                    });
-                    break;
-                }
-            }
-        } catch (Throwable e) {
-            XposedBridge.log(e);
+    private static void reload() {
+        if (sXsp == null) {
+            sXsp = new XSharedPreferences(BuildConfig.APPLICATION_ID, SettingLabelView.DEFAULT_PREFERENCES_NAME);
+            sXsp.makeWorldReadable();
         }
+        sXsp.reload();
+        sFakeLocation = sXsp.getBoolean("fake_location", false);
+        sFakeLocationTime = sXsp.getBoolean("fake_location_time", false);
+        sStartTime = sXsp.getString("location_start_time", "8:40");
+        sLatitude = sXsp.getString("latitude", "39.908692");
+        sLongitude = sXsp.getString("longitude", "116.397477");
     }
 
-    private Object fakeAMapLocationObject(Object object) {
+    private static Object fakeAMapLocationObject(Object object) {
         reload();
-        if (fakeLocation) {
-            if (!fakeLocationTime || isAfterSetTime(startTime)) {
-                XposedHelpers.callMethod(object, "setLatitude", Double.valueOf(latitude));
-                XposedHelpers.callMethod(object, "setLongitude", Double.valueOf(longitude));
+        if (sFakeLocation) {
+            if (!sFakeLocationTime || isAfterSetTime(sStartTime)) {
+                XposedHelpers.callMethod(object, "setLatitude", Double.valueOf(sLatitude));
+                XposedHelpers.callMethod(object, "setLongitude", Double.valueOf(sLongitude));
             }
         }
         return object;
@@ -124,7 +92,8 @@ public class LocationHook {
      * @param setTime 01:12
      * @return
      */
-    private boolean isAfterSetTime(String setTime) {
+    @SuppressLint("SimpleDateFormat")
+    private static boolean isAfterSetTime(String setTime) {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         Date date = null;
         Date now = null;

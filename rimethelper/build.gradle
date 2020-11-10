@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 30
     defaultConfig {
         applicationId "com.wuxiaosu.rimethelper"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 5
-        versionName "1.04"
+        versionCode 6
+        versionName "1.05"
     }
 
     signingConfigs {
@@ -48,6 +48,12 @@ android {
             manifestPlaceholders = [
                     AMapKey: "26b0d2cd5c99befe30cf73c6d93fe8ea"
             ]
+        }
+    }
+    android {
+        lintOptions {
+            checkReleaseBuilds false
+            abortOnError false
         }
     }
 }

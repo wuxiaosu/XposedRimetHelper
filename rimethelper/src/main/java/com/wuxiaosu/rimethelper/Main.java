@@ -59,7 +59,7 @@ public class Main implements IXposedHookLoadPackage {
     }
 
     private void handleHook(ClassLoader classLoader, String versionName) {
-        new LocationHook(versionName).hook(classLoader);
+        LocationHook.hook(classLoader);
     }
 
     private String getVersionName(Context context, String pkgName) {
