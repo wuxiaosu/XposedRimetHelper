@@ -11,4 +11,4 @@ Xposed 钉钉辅助模块，暂时实现模拟位置。理论上支持 4.2.0 以
 
 - release from [github](https://github.com/wuxiaosu/XposedRimetHelper/releases)  
 
-- ~~release from [酷安](https://www.coolapk.com/apk/180336)~~~(被和谐了)  
+- ~~release from [酷安](https://www.coolapk.com/apk/180336)~~(被和谐了)  
